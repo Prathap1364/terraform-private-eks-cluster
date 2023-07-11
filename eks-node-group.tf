@@ -6,7 +6,7 @@ resource "aws_eks_node_group" "eks-nodes" {
 
   node_group_name = "EKS_NODE_GROUP_WORKLOAD"
   node_role_arn   = aws_iam_role.eks-nodegroup-iam-role.arn
-  subnet_ids      = ["${aws_subnet.public1-subnet1.id}", "${aws_subnet.public2-subnet2.id}"]
+  subnet_ids      = ["${aws_subnet.private-subnet1.id}", "${aws_subnet.private-subnet2.id}"]
   scaling_config {
     desired_size = 2
     min_size     = 1

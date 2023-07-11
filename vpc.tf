@@ -48,17 +48,62 @@ resource "aws_subnet" "public2-subnet2" {
   }
 
 }
+#creating 1st private subnet
+resource "aws_subnet" "private-subnet1" {
+  vpc_id            = aws_vpc.myvpc.id
+  availability_zone = "us-east-1c"
+  cidr_block        = "10.0.3.0/24"
+}
+#creating 2nd private subnet
+resource "aws_subnet" "private-subnet2" {
+  vpc_id            = aws_vpc.myvpc.id
+  availability_zone = "us-east-1d"
+  cidr_block        = "10.0.4.0/24"
+ }
+
+
+
+
+
 resource "aws_route_table_association" "rt-asso-1" {
   subnet_id      = aws_subnet.public1-subnet1.id
   route_table_id = aws_route_table.public-rt.id
 }
-resource "aws_route_table_association" "rt-asso-2" {
+resource "aws_route_table_association" "rt-asso-2" { 
   subnet_id      = aws_subnet.public2-subnet2.id
   route_table_id = aws_route_table.public-rt.id
 }
-resource "aws_nat_gateway" "ngw" {
-  
+#creating eip
+resource "aws_eip" "nat" {
+#public_ipv4_pool = "ipv4pool-ec2-012345"
 }
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = "${aws_eip.nat.id}"
+  subnet_id = "${aws_subnet.public1-subnet1.id}"
+  }
+
+#route table for private subnets
+resource "aws_route_table" "private-rt" {
+  vpc_id = aws_vpc.myvpc.id
+  #name    = "private-rt"
+}
+resource "aws_route" "private-routing" {
+  gateway_id  = aws_nat_gateway.ngw.id
+  destination_cidr_block = "0.0.0.0/0"
+  route_table_id = aws_route_table.private-rt.id
+}
+#subnets association for private route table
+resource "aws_route_table_association" "rt-private-1" {
+  subnet_id = aws_subnet.private-subnet1.id
+  route_table_id = aws_route_table.private-rt.id
+}
+resource "aws_route_table_association" "rt-private-2" {
+  subnet_id = aws_subnet.private-subnet2.id
+  route_table_id = aws_route_table.private-rt.id
+}
+
+
+#Security group for vpc
 resource "aws_security_group" "sg-vpc" {
   vpc_id = aws_vpc.myvpc.id
   tags = {
