@@ -56,6 +56,9 @@ resource "aws_route_table_association" "rt-asso-2" {
   subnet_id      = aws_subnet.public2-subnet2.id
   route_table_id = aws_route_table.public-rt.id
 }
+resource "aws_nat_gateway" "ngw" {
+  
+}
 resource "aws_security_group" "sg-vpc" {
   vpc_id = aws_vpc.myvpc.id
   tags = {
